@@ -1,7 +1,6 @@
 Package: biblionetwork
 Title: Create Different Types of Bibliometric Networks
-Version: 0.1.0
-Date: 2021-04-08
+Version: 0.2.0
 Authors@R: c(
     person(given = "Aurélien",
            family = "Goutsmedt",
@@ -11,31 +10,31 @@ Authors@R: c(
     person(given = "François",
            family = "Claveau",
            role = c("aut"),
-           email = "françois.claveau@usherbrooke.ca",
            comment = c(ORCID = "0000-0001-7129-7794")),
     person(given = "Alexandre",
            family = "Truc",
            role = c("aut"),
-           email = "alexandre.truc77@gmail.com",
            comment = c(ORCID = "0000-0002-1328-7819")))
 Maintainer: Aurélien Goutsmedt <agoutsmedt@hotmail.fr>
-Description: Functions to find edges for bibliometric networks like bibliographic coupling network, co-citation network and co-authorship network. The weights of network edges can be calculated according to different methods, depending on the type of networks, the type of nodes, and what you want to analyse. These functions are optimized to be be used on large dataset. The package contains functions inspired by: Leydesdorff, Loet and Park, Han Woo (2017) <doi:10.1016/j.joi.2016.11.007>; Perianes-Rodriguez, Antonio, Ludo Waltman, and Nees Jan Van Eck (2016) <doi:10.1016/j.joi.2016.10.006>; Sen, Subir K. and Shymal K. Gan (1983) <http://nopr.niscair.res.in/handle/123456789/28008>; Shen, Si, Zhu, Danhao, Rousseau, Ronald, Su, Xinning and Wang, Dongbo (2019) <doi:10.1016/j.joi.2019.01.012>; Zhao, Dangzhi and Strotmann, Andreas (2008) <doi:10.1002/meet.2008.1450450292>.
+Description: Functions to find edges for bibliometric networks like bibliographic coupling network, co-citation network and co-authorship network. The weights of network edges can be calculated according to different methods, depending on the type of networks, the type of nodes, and what you want to analyse. These functions are optimized to be be used on large dataset. The package contains functions inspired by: Leydesdorff, Loet and Park, Han Woo (2017) <doi:10.1016/j.joi.2016.11.007>; Perianes-Rodriguez, Antonio, Ludo Waltman, and Nees Jan Van Eck (2016) <doi:10.1016/j.joi.2016.10.006>; Sen, Subir K. and Shymal K. Gan (1983) "A mathematical extension of the idea of bibliographic coupling and its applications", Annals of Library Science and Documentation 30(2); Shen, Si, Zhu, Danhao, Rousseau, Ronald, Su, Xinning and Wang, Dongbo (2019) <doi:10.1016/j.joi.2019.01.012>; Zhao, Dangzhi and Strotmann, Andreas (2008) <doi:10.1002/meet.2008.1450450292>.
 URL: https://github.com/agoutsmedt/biblionetwork,
         https://agoutsmedt.github.io/biblionetwork/
 BugReports: https://github.com/agoutsmedt/biblionetwork/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
-Imports: data.table, Rdpack (>= 0.7)
-Depends: R (>= 2.10)
+Imports: cli, data.table (>= 1.12.0), lifecycle, Matrix (>= 1.5-0),
+        methods, Rdpack (>= 0.7), rlang (>= 1.0.0), stats, utils
+Depends: R (>= 4.1.0)
 RdMacros: Rdpack
-Suggests: knitr, rmarkdown
-VignetteBuilder: knitr
+Suggests: ggplot2, igraph, scico, testthat (>= 3.0.0), withr
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.1
 NeedsCompilation: no
-Packaged: 2021-04-08 08:04:00 UTC; agout
-Author: Aurélien Goutsmedt [cre, aut] (<https://orcid.org/0000-0002-3788-7237>),
-  François Claveau [aut] (<https://orcid.org/0000-0001-7129-7794>),
-  Alexandre Truc [aut] (<https://orcid.org/0000-0002-1328-7819>)
+Packaged: 2026-11-04 09:06:14 UTC; agoutsmedt
+Author: Aurélien Goutsmedt [cre, aut] (ORCID:
+    <https://orcid.org/0000-0002-3788-7237>),
+  François Claveau [aut] (ORCID: <https://orcid.org/0000-0001-7129-7794>),
+  Alexandre Truc [aut] (ORCID: <https://orcid.org/0000-0002-1328-7819>)
 Repository: CRAN
-Date/Publication: 2021-04-09 08:20:07 UTC
+Date/Publication: 2026-11-04 09:20:25 UTC

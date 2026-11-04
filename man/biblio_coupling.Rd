@@ -2,88 +2,109 @@
 % Please edit documentation in R/biblio_coupling.R
 \name{biblio_coupling}
 \alias{biblio_coupling}
-\title{Calculating the Coupling Angle Measure for Edges}
+\title{Bibliographic coupling edges, with the weighting method of your choice}
 \usage{
 biblio_coupling(
   dt,
   source,
   ref,
+  method = c("angle", "strength", "similarity", "jaccard", "vladutz"),
   normalized_weight_only = TRUE,
   weight_threshold = 1,
   output_in_character = TRUE
 )
 }
 \arguments{
-\item{dt}{For bibliographic coupling (or co-citation), the dataframe with citing and cited documents. It could also be used
-\enumerate{
-\item for title co-occurence network, with \code{source} being the articles,
-and \code{ref} being the list of words in articles titles;
-\item for co-authorship network,
-with \code{source} being the authors, and \code{ref} the list of articles.
-}}
+\item{dt}{A data frame or a \code{data.table} of direct citations, one row per
+link between a citing document and a cited reference. It is not modified.}
 
-\item{source}{The column name of the source identifiers, that is the documents that are citing. In a coupling network, these documents
-are the nodes of the network.}
+\item{source}{Character scalar. The column of the citing documents: they
+are the nodes of the coupling network.}
 
-\item{ref}{The column name of the cited references identifiers.}
+\item{ref}{Character scalar. The column of the cited references.}
 
-\item{normalized_weight_only}{If set to FALSE, the function returns the weights normalized by the cosine measure,
-but also the number of shared references.}
+\item{method}{The weighting method, one of \code{"angle"} (default),
+\code{"strength"}, \code{"similarity"}, \code{"jaccard"} and \code{"vladutz"}. See the table
+above and the help page of each function.}
 
-\item{weight_threshold}{Corresponds to the value of the non-normalized weights of edges. The function just keeps the edges
-that have a non-normalized weight superior to the \code{weight_threshold}. In other words, if you set the
-parameter to 2, the function keeps only the edges between nodes that share at least two references
-in common in their bibliography. In a large bibliographic coupling network,
-you can consider for instance that sharing only one reference is not sufficient/significant for two articles to be linked together.
-This parameter could also be modified to avoid creating intractable networks with too many edges.}
+\item{normalized_weight_only}{Logical. If \code{FALSE}, the number of shared
+references is returned in addition to the normalised \code{weight}.}
 
-\item{output_in_character}{If TRUE, the function ends by transforming the \code{from} and \code{to} columns in character, to make the
-creation of a \href{https://tidygraph.data-imaginist.com/index.html}{tidygraph} network easier.}
+\item{weight_threshold}{Number. The minimum number of shared references
+for two documents to be linked (1 by default: any shared reference
+creates a tie). A threshold of 2 or 3 is common in large corpora, where
+sharing a single reference is weak evidence of proximity and produces
+very dense networks. It applies to the number of shared references, not
+to the normalised weight.}
+
+\item{output_in_character}{Logical. If \code{TRUE} (default), the identifiers
+are also returned as character columns \code{from} and \code{to}, to build a
+\href{https://tidygraph.data-imaginist.com/index.html}{tidygraph} graph more
+easily.}
 }
 \value{
-A data.table with the articles (or authors) identifiers in \code{from} and \code{to} columns,
-with one or two additional columns (the coupling angle measure and the number of shared references).
-It also keeps a copy of \code{from} and \code{to} in the \code{Source} and \code{Target} columns. This is useful is you
-are using the tidygraph package after, where \code{from} and \code{to} values are modified when creating a graph.
+A \code{data.table} with one row per pair of documents sharing at least
+\code{weight_threshold} references: \code{Source} and \code{Target} (identifiers, with
+\code{Source < Target}), \code{from} and \code{to} (the same, as characters, if
+\code{output_in_character = TRUE}), the \code{weight} and, if
+\code{normalized_weight_only = FALSE}, \code{nb_shared_references}. Whatever the
+method, the weights of different methods do not have the same scale: see
+\code{\link[=compute_couplings]{compute_couplings()}} to compare them.
 }
 \description{
-This function calculates the number of references that different articles share together, as well as
-the coupling angle value of edges in a bibliographic coupling network \insertCite{sen1983}{biblionetwork}, from a direct
-citation data frame. This is a standard way to build bibliographic coupling network using Salton's cosine measure:
-it divides the number of references that two articles share by the square root of the product of
-both articles bibliography lengths. It avoids giving too much importance to articles with a large bibliography.
+The general entry point to bibliographic coupling. From a table of direct
+citations (one row per citing document and cited reference), it returns the
+edges of the network linking the documents that share references
+\insertCite{kessler1963}{biblionetwork}, weighted by the \code{method} you
+choose. It is a thin wrapper: every method is also available as a
+function of its own, which documents the formula and the reasons to
+choose it.\tabular{lll}{
+   \code{method} \tab Function \tab Weight \cr
+   \code{"angle"} (default) \tab \code{\link[=coupling_angle]{coupling_angle()}} \tab cosine of the bibliographies \insertCite{sen1983}{biblionetwork} \cr
+   \code{"strength"} \tab \code{\link[=coupling_strength]{coupling_strength()}} \tab shared references weighted by their rarity \insertCite{shen2019}{biblionetwork} \cr
+   \code{"similarity"} \tab \code{\link[=coupling_similarity]{coupling_similarity()}} \tab idf-weighted cosine \insertCite{shen2019}{biblionetwork} \cr
+   \code{"jaccard"} \tab \code{\link[=coupling_jaccard]{coupling_jaccard()}} \tab shared references over the union of the bibliographies \insertCite{sen1983}{biblionetwork} \cr
+   \code{"vladutz"} \tab \code{\link[=coupling_vladutz]{coupling_vladutz()}} \tab Vladutz and Cook formula \insertCite{vladutz1984}{biblionetwork} \cr
+}
+
+
+In versions up to 0.1.1, \code{biblio_coupling()} was what is now
+\code{\link[=coupling_angle]{coupling_angle()}}: calls that leave \code{method} to its default give the same
+result. To compare several methods at once on the same corpus, use
+\code{\link[=compute_couplings]{compute_couplings()}}; to couple authors, journals or institutions rather
+than documents, use \code{\link[=entity_network]{entity_network()}}; to link cited references, use
+\code{\link[=biblio_cocitation]{biblio_cocitation()}}.
 }
 \details{
-This function implements the following weight measure:
-
-\deqn{\frac{R(A) \bullet R(B)}{\sqrt{L(A).L(B)}}}
-
-with \eqn{R(A)} and \eqn{R(B)} the references of document A and document B, \eqn{R(A) \bullet R(B)}
-being the number of shared references by A and B, and \eqn{L(A)} and \eqn{L(B)}
-the length of the bibliographies of document A and document B.
-
-This function uses data.table package and is thus very fast. It allows the user to compute the coupling angle
-on a very large data frame quickly.
-
-This function is a relatively general function that can also be used
-\enumerate{
-\item for co-citation networks (just by inversing the \code{source} and \code{ref} columns).
-If you want to avoid confusion, rather use the \code{\link[=biblio_cocitation]{biblio_cocitation()}} function.
-\item for title co-occurence networks (taking care of
-the length of the title thanks to the coupling angle measure);
-\item for co-authorship networks (taking care of the
-number of co-authors an author has collaborated with on a period). For co-authorship,
-rather use the \code{\link[=coauth_network]{coauth_network()}} function.
-}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{
 library(biblionetwork)
-biblio_coupling(Ref_stagflation,
-source = "Citing_ItemID_Ref",
-ref = "ItemID_Ref",
-weight_threshold = 3)
+# The default is the coupling angle...
+head(biblio_coupling(Ref_stagflation,
+                     source = "Citing_ItemID_Ref",
+                     ref = "ItemID_Ref",
+                     weight_threshold = 3))
+
+# ...and the method changes the weights, not the pairs of documents
+head(biblio_coupling(Ref_stagflation,
+                     source = "Citing_ItemID_Ref",
+                     ref = "ItemID_Ref",
+                     method = "strength",
+                     weight_threshold = 3))
 
 }
 \references{
 \insertAllCited{}
 }
+\seealso{
+Other coupling measures:
+\code{\link[=coupling_angle]{coupling_angle()}},
+\code{\link[=coupling_descriptive]{coupling_descriptive()}},
+\code{\link[=coupling_jaccard]{coupling_jaccard()}},
+\code{\link[=coupling_similarity]{coupling_similarity()}},
+\code{\link[=coupling_strength]{coupling_strength()}},
+\code{\link[=coupling_vladutz]{coupling_vladutz()}},
+\code{\link[=descriptive_terms]{descriptive_terms()}}
+}
+\concept{coupling measures}
